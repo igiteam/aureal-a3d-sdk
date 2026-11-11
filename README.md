@@ -97,8 +97,7 @@ thief-gold-prince-of-persia-3d/
 │ └── netlify.toml # wasm MIME, COOP/COEP only if pthreads
 └── README.md
 
-text
-
+ 
 ### 4.2 The router interface (what the game calls)
 
 The game never talks to a specific backend. It calls the router:
@@ -118,9 +117,9 @@ BACKEND_XBOX → Audio_SetRoom maps to OpenAL EFX reverb presets. Easy, faithful
 BACKEND_OPENAL → native HRTF + EFX. Straightforward.
 
 BACKEND_A3D → Audio_SetGeometry + Audio_Update run the geometry traces, then feed the results into OpenAL filters and EFX. This is the hard path.
+```
 
 4.3 The A3D backend in detail
-text
 per frame, per audible source:
   1. direct path          -> is it blocked? (occlusion)      -> low-pass filter
   2. partial obstruction  -> is it partially blocked?        -> direct-HF filter
@@ -146,25 +145,31 @@ Do not try to load them into A3D or Xbox hardware — the formats and hardware a
 4.5 Build & host pipeline (WASM)
 Build in a Codespace with a pinned Emscripten SDK:
 
-bash
+```bash
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk && ./emsdk install 3.1.x && ./emsdk activate 3.1.x
 source ./emsdk_env.sh
+```
+
 Compile (engine + audio router):
 
-bash
+```bash
 emcc engine/... audio/router/... -o web/index.html \
   -s USE_SDL=2 -s USE_WEBGL2=1 -s FULL_ES3=1 \
   -O2 --preload-file assets
+```
+
 Extract artifacts — .wasm, .js/.mjs, .data, index.html — commit to web/ (or dist/) so they survive Codespace deletion.
 
 Deploy to Netlify / Forgejo Pages with:
 
-toml
+```toml
 [[headers]]
   for = "/*.wasm"
   [headers.values]
     Content-Type = "application/wasm"
+```
+
 Add COOP/COEP only if the build uses pthreads.
 
 4.6 Security / hosting rules (non-negotiable)
